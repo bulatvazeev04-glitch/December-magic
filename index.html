@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#172d27">
+<title>December Magic — адвент-календарь</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+:root{--forest:#172d27;--forest2:#233d34;--cream:#f5ecd9;--paper:#eadfc8;--gold:#c9a86a;--red:#8b3d3d;--muted:#b9ad95}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#345347 0,#1d352d 42%,#12251f 100%);color:var(--cream);font-family:Manrope,Arial,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
+.snow{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:3}.flake{position:absolute;top:-12px;color:#fff8e8;opacity:.65;animation:fall linear infinite;text-shadow:0 0 8px #fff}
+@keyframes fall{to{transform:translateY(110vh) translateX(25px) rotate(180deg)}}
+.wrap{max-width:480px;margin:0 auto;padding:28px 18px 42px;position:relative;z-index:1}
+.topline{display:flex;justify-content:space-between;align-items:center;color:#d8c9aa;font-size:10px;letter-spacing:2.4px;text-transform:uppercase}
+.seal{width:38px;height:38px;border:1px solid #b99c65;border-radius:50%;display:grid;place-items:center;color:#d8b979;font-size:18px}
+.hero{text-align:center;padding:28px 0 15px}
+.kicker{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#d4b879}
+h1{font:500 clamp(42px,12vw,58px)/.95 'Cormorant Garamond',Georgia,serif;margin:12px 0 10px;color:#f5ead3}
+.subtitle{font:italic 18px 'Cormorant Garamond',Georgia,serif;color:#d6c8ae;margin:0}
+.scene{margin:20px auto 18px;max-width:410px;height:185px;position:relative;border:1px solid rgba(210,181,123,.45);border-radius:5px;overflow:hidden;background:linear-gradient(#263e38 0%,#40584b 58%,#d5c5a3 58.5%,#e9dec7 100%);box-shadow:0 14px 35px #091a1580}
+.scene:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#e9d7a055,transparent 34%)}
+.moon{position:absolute;width:43px;height:43px;border-radius:50%;background:#f1dfb5;right:18%;top:24px;box-shadow:0 0 30px #f1dfb577}
+.hill{position:absolute;bottom:44px;width:130%;height:90px;left:-15%;background:#d8d0b7;border-radius:50% 50% 0 0;transform:rotate(-5deg)}
+.cabin{position:absolute;bottom:37px;left:50%;transform:translateX(-50%);width:110px;height:72px;background:#704b3a;border:2px solid #5a3b30}
+.cabin:before{content:"";position:absolute;left:-13px;top:-30px;width:0;height:0;border-left:68px solid transparent;border-right:68px solid transparent;border-bottom:42px solid #8c4941}
+.window{position:absolute;top:18px;left:15px;width:21px;height:25px;background:#f5d68a;box-shadow:0 0 16px #f7d98c}
+.door{position:absolute;right:13px;bottom:0;width:25px;height:42px;background:#49332a;border:1px solid #b18c58}
+.tree{position:absolute;bottom:35px;width:0;height:0;border-left:27px solid transparent;border-right:27px solid transparent;border-bottom:90px solid #203c31;filter:drop-shadow(0 0 2px #14251e)}
+.tree:after{content:"";position:absolute;top:28px;left:-22px;border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:72px solid #294a3a}
+.tree.one{left:13%;transform:scale(.75)}.tree.two{right:12%;transform:scale(.9)}
+.snowground{position:absolute;bottom:0;height:40px;width:100%;background:#eee5d2}
+.scene-caption{position:absolute;bottom:9px;left:0;right:0;text-align:center;color:#4b5547;font:italic 13px 'Cormorant Garamond',serif;z-index:2}
+.progress{display:flex;justify-content:center;align-items:center;gap:9px;color:#d7c9ae;font-size:11px;letter-spacing:1px;margin:18px 0 12px}
+.progress-line{width:95px;height:3px;background:#ffffff24;border-radius:5px;overflow:hidden}.progress-line span{display:block;width:0%;height:100%;background:var(--gold)}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.day{aspect-ratio:1;border:1px solid #bda36d77;border-radius:4px;background:linear-gradient(145deg,#29453a,#1c342c);color:#e9ddc5;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:.2s;box-shadow:inset 0 0 0 1px #ffffff08}
+.day .num{font:600 21px 'Cormorant Garamond',serif}.day .icon{font-size:11px;margin-top:1px;color:#d4b879}
+.day.available{background:linear-gradient(145deg,#a24f43,#713a35);border-color:#d5b274;box-shadow:0 0 18px #b77d4a38;animation:pulse 2.4s infinite}
+.day.opened{background:linear-gradient(145deg,#b99b62,#8b7045);color:#172d27;border-color:#e7cf9a}
+.day.locked{opacity:.65;cursor:not-allowed}.day:active:not(.locked){transform:scale(.94)}
+@keyframes pulse{50%{box-shadow:0 0 22px #d2a86c70}}
+.note{text-align:center;font:italic 16px 'Cormorant Garamond',serif;color:#cfc1a6;margin:19px 0 0}
+.footer{text-align:center;color:#9e927b;font-size:9px;letter-spacing:2px;margin-top:28px;text-transform:uppercase}
+.modal{position:fixed;inset:0;background:#07140fce;display:none;align-items:center;justify-content:center;padding:22px;z-index:5;backdrop-filter:blur(6px)}
+.modal.show{display:flex}.card{width:100%;max-width:360px;background:linear-gradient(150deg,#f6ecd8,#e7d8bb);color:#293b30;padding:28px 24px 24px;text-align:center;border:1px solid #c8aa70;box-shadow:0 20px 70px #0008;position:relative}
+.card:before{content:"";position:absolute;inset:8px;border:1px solid #b99b65;pointer-events:none}
+.card .daylabel{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#8b7045}
+.card .gift{font-size:40px;margin:15px 0 5px}
+.card h2{font:600 34px 'Cormorant Garamond',serif;margin:5px 0 12px}
+.card p{font:italic 19px/1.45 'Cormorant Garamond',serif;margin:0 auto 22px;max-width:270px}
+.card button{border:0;background:#294338;color:#f5ecd9;padding:12px 23px;font:600 10px Manrope;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.small{font-size:10px;color:#8d8068;margin-top:13px}
+@media(max-width:360px){.calendar{gap:5px}.day .num{font-size:18px}.wrap{padding-left:13px;padding-right:13px}}
+</style>
+</head>
+<body>
+<div class="snow" id="snow"></div>
+<main class="wrap">
+  <div class="topline"><span>December · 2026</span><div class="seal">✶</div><span>For Kamila</span></div>
+  <header class="hero">
+    <div class="kicker">A little winter magic</div>
+    <h1>December<br>Magic</h1>
+    <p class="subtitle">31 дней маленьких чудес</p>
+  </header>
+  <section class="scene" aria-label="Зимняя иллюстрация">
+    <div class="moon"></div><div class="tree one"></div><div class="tree two"></div>
+    <div class="hill"></div><div class="cabin"><div class="window"></div><div class="door"></div></div>
+    <div class="snowground"></div><div class="scene-caption">Там, где начинается наша сказка</div>
+  </section>
+  <div class="progress"><span id="progressText">0 ИЗ 31 ОТКРЫТО</span><div class="progress-line"><span id="progressBar"></span></div></div>
+  <section class="calendar" id="calendar" aria-label="Адвент-календарь"></section>
+  <p class="note">Каждый день — ещё одна причина улыбнуться ♡</p>
+  <div class="footer">Made with love · December 2026</div>
+</main>
+<div class="modal" id="modal">
+  <div class="card">
+    <div class="daylabel" id="dayLabel">День 1 · 1 декабря</div>
+    <div class="gift">🎁</div>
+    <h2>Маленькое чудо</h2>
+    <p id="message">Сегодня тебя ждёт кое-что особенное. Иди ко мне — у меня для тебя сюрприз. ❤️</p>
+    <button id="close">Забрать сюрприз</button>
+    <div class="small">Самое ценное — моменты, которые мы создаём вместе</div>
+  </div>
+</div>
+<script>
+const DEMO_MODE = true; // В прототипе можно открыть первую ячейку независимо от даты.
+const today = new Date();
+const demoDay = 1;
+const currentDay = DEMO_MODE ? demoDay : (today.getFullYear()===2026 && today.getMonth()===11 ? today.getDate() : 0);
+const calendar = document.getElementById('calendar');
+let opened = new Set();
+for(let i=1;i<=31;i++){
+  const b=document.createElement('button'); b.className='day';
+  const state=i<currentDay?'opened':i===currentDay?'available':'locked';
+  b.classList.add(state);
+  b.innerHTML=`<span class="num">${String(i).padStart(2,'0')}</span><span class="icon">${state==='locked'?'✦':state==='opened'?'♥':'✧'}</span>`;
+  b.setAttribute('aria-label',`День ${i}`);
+  if(state!=='locked') b.addEventListener('click',()=>openDay(i));
+  calendar.appendChild(b);
+  if(state==='opened') opened.add(i);
+}
+function openDay(day){
+  document.getElementById('dayLabel').textContent=`День ${day} · ${day} декабря`;
+  document.getElementById('message').textContent=day===1?'Сегодня начинается наша маленькая новогодняя история. Иди ко мне — у меня для тебя первый сюрприз. ❤️':'Сегодня тебя ждёт кое-что особенное. Иди ко мне — у меня для тебя сюрприз. ❤️';
+  document.getElementById('modal').classList.add('show');
+}
+document.getElementById('close').addEventListener('click',()=>document.getElementById('modal').classList.remove('show'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('show')});
+document.getElementById('progressText').textContent=`${opened.size} ИЗ 31 ОТКРЫТО`;
+document.getElementById('progressBar').style.width=`${opened.size/31*100}%`;
+for(let i=0;i<38;i++){const f=document.createElement('span');f.className='flake';f.textContent=Math.random()>.5?'·':'❄';f.style.left=Math.random()*100+'%';f.style.animationDuration=(8+Math.random()*12)+'s';f.style.animationDelay=(-Math.random()*18)+'s';f.style.fontSize=(8+Math.random()*10)+'px';document.getElementById('snow').appendChild(f)}
+</script>
+</body>
+</html>
