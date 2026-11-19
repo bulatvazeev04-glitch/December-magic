@@ -66,6 +66,10 @@ background:repeating-linear-gradient(45deg,#d62839 0 10px,#fff 10px 20px) top/10
 .sheet img{width:100%;border-radius:16px;margin-bottom:14px;display:block;animation:reveal 1.1s .15s both;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 @keyframes reveal{from{filter:blur(16px);transform:scale(1.12);opacity:0}}
 .sheet p{white-space:pre-wrap;font-size:18px;line-height:1.5;margin:0 0 20px}
+.sheet input{width:100%;padding:14px;border-radius:14px;border:2px solid #d9c9a8;font:600 17px system-ui;text-align:center;margin-bottom:8px;background:#fff;color:#1a3d2b}
+.sheet input:focus{outline:none;border-color:#d62839}
+.msg{min-height:26px;font-weight:600;margin-bottom:10px;line-height:1.35}.msg.bad{color:#b3202f}
+.shk{animation:shake .4s!important}
 button{width:100%;border:0;border-radius:14px;padding:15px;font:600 16px system-ui;color:#fff;background:linear-gradient(135deg,#e8405f,#b3202f);box-shadow:0 3px 0 #7d1220}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -98,11 +102,11 @@ button{width:100%;border:0;border-radius:14px;padding:15px;font:600 16px system-
     <path d="M169 52 Q170 28 192 30 Q207 42 201 52Z" fill="#d62839"/><rect x="166" y="48" width="38" height="8" rx="4" fill="#fff"/><circle cx="199" cy="31" r="5" fill="#fff"/>
   </svg>
   <h1 id="h">Новогодний адвент-календарь</h1>
-  <p class="about">Чтобы скрасить ожидание Нового года, я создал этот адвент-календарь 🎄 Каждый день тебя ждёт новое окошко, а подарки в нём могут быть самыми разными. Открывай только в свой день, иначе окошко пропадёт!</p>
+  <p class="about">Чтобы скрасить ожидание Нового года, я создал этот адвент-календарь 🎄 Каждый день тебя ждёт новое окошко с новогодней загадкой, а подарки за них могут быть самыми разными. Отгадай загадку в свой день, иначе подарок будет потерян!</p>
   <div class="sub" id="sub"></div>
   <div class="prog"><i id="bar"></i></div>
   <div class="grid" id="grid"></div>
-  <div class="legend"><span>🎀 сегодня</span><span>✅ открыто</span><span>🔒 рано</span><span>💔 потеряно</span></div>
+  <div class="legend"><span>🎀 сегодня</span><span>✅ отгадано</span><span>🔒 рано</span><span>💔 потеряно</span></div>
 </main></div>
 <div class="modal" id="m"><div class="sheet" id="sheet"></div></div>
 
@@ -111,7 +115,7 @@ const tg = Telegram.WebApp; tg.ready(); tg.expand();
 try { tg.setHeaderColor("#0f6140"); tg.setBackgroundColor("#083d28"); tg.setBottomBarColor && tg.setBottomBarColor("#083d28"); tg.disableVerticalSwipes && tg.disableVerticalSwipes(); } catch {}
 const $ = id => document.getElementById(id);
 const q = new URLSearchParams(location.search);
-const inTg = !!tg.initData, KEY = "advent_opened";
+const inTg = !!tg.initData, KEY = "advent_solved";
 const calm = matchMedia("(prefers-reduced-motion:reduce)").matches;
 
 const store = {
@@ -148,16 +152,43 @@ function render() {
   for (let n = 1; n <= C.days; n++) { const s = status(n);
     h += `<div class="c ${s}" data-n="${n}" style="--i:${n}"><span class="i">${ICON[s]}</span><b>${n}</b><small>${label(n)}</small></div>`; }
   $("grid").innerHTML = h;
-  $("sub").textContent = `Открыто ${opened.length} из ${C.days}`;
+  $("sub").textContent = `Отгадано ${opened.length} из ${C.days}`;
   $("bar").style.width = (opened.length / C.days * 100) + "%";
   setTimeout(() => $("grid").classList.add("done"), 1200 + C.days * 28);
 }
 
+const norm = t => t.toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]/g, "");
+async function sha(t) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("adv:" + norm(t)));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+const BAD = ["Неа 🙈 Подумай ещё!", "Мимо! Но ты близко (наверное) 😄", "Не угадала! Попробуй ещё раз 💪", "Хм, нет. Загадка хитрая, но ты хитрее 😉", "Почти... нет, не почти 😅 Пробуй дальше!"];
+let bi = 0;
+
 function show(n) {
   const c = (C.cells || {})[n] || {};
-  const text = c.text || "Сегодня тебя ждёт сюрприз! Приходи ко мне 😉";
-  $("sheet").innerHTML = `<h2>🎁 Окошко №${n}</h2>${c.photo ? `<img src="${esc(c.photo)}" onerror="this.remove()">` : ""}<p>${esc(text)}</p><button onclick="closeM()">Закрыть</button>`;
+  const solved = opened.includes(n);
+  const riddle = `<h2>🧩 Окошко №${n}</h2><p>${esc(c.riddle || "Загадка скоро появится")}</p>`;
+  $("sheet").innerHTML = riddle + (solved
+    ? `<div class="msg">✅ Загадка уже отгадана! Подарок за это окошко тебе полагается, забирай у меня 🎁</div><button onclick="closeM()">Закрыть</button>`
+    : `<input id="ans" placeholder="Твой ответ" autocomplete="off" enterkeyhint="done"><div class="msg" id="msg"></div><button id="go">Проверить</button>`);
   $("m").classList.add("on");
+  if (!solved) {
+    const go = async () => {
+      const v = $("ans").value.trim(); if (!v) return;
+      let ok = false;
+      try { ok = (c.a || []).includes(await sha(v)); } catch { return notify("Не получилось проверить ответ, открой календарь через Telegram."); }
+      if (!ok) {
+        haptic("error"); const m = $("msg"); m.className = "msg bad"; m.textContent = BAD[bi++ % BAD.length];
+        wiggle($("ans"), "shk"); $("ans").select(); return;
+      }
+      haptic("success"); burst(innerWidth / 2, innerHeight * .55);
+      opened.push(n); store.set(opened); render(); $("grid").classList.add("done");
+      $("sheet").innerHTML = `<h2>🎉 Правильно!</h2><p>Ты отгадала загадку, Матурым, и за это тебе полагается подарок!\nПриходи ко мне за ним 🎁${c.win ? "\n\n" + esc(c.win) : ""}</p><button onclick="closeM()">Ура!</button>`;
+    };
+    $("go").onclick = go;
+    $("ans").onkeydown = e => { if (e.key === "Enter") go(); };
+  }
 }
 const closeM = () => $("m").classList.remove("on");
 $("m").onclick = e => { if (e.target.id === "m") closeM(); };
@@ -168,14 +199,9 @@ $("grid").onclick = e => {
   const el = e.target.closest(".c"); if (!el) return;
   const n = +el.dataset.n, s = status(n);
   if (s === "future") { haptic("error"); wiggle(el, "shake"); return notify(`Рано 🙈 Это окошко откроется ${label(n)}`); }
-  if (s === "missed") { haptic("error"); wiggle(el, "shake"); return notify("💔 Это окошко было доступно только в свой день. Подарок потерян..."); }
-  haptic("success");
-  if (s === "today") {
-    wiggle(el, "pop");
-    const r = el.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2);
-    opened.push(n); store.set(opened);
-    setTimeout(() => { show(n); render(); $("grid").classList.add("done"); }, calm ? 0 : 550);
-  } else show(n);
+  if (s === "missed") { haptic("error"); wiggle(el, "shake"); return notify("💔 Окошко было доступно только в свой день, а загадка осталась неразгаданной. Подарок потерян..."); }
+  haptic("success"); if (s === "today") wiggle(el, "pop");
+  setTimeout(() => show(n), s === "today" && !calm ? 350 : 0);
 };
 
 // ---- снег ----
