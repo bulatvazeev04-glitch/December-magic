@@ -102,11 +102,11 @@ button{width:100%;border:0;border-radius:14px;padding:15px;font:600 16px system-
     <path d="M169 52 Q170 28 192 30 Q207 42 201 52Z" fill="#d62839"/><rect x="166" y="48" width="38" height="8" rx="4" fill="#fff"/><circle cx="199" cy="31" r="5" fill="#fff"/>
   </svg>
   <h1 id="h">Новогодний адвент-календарь</h1>
-  <p class="about">Чтобы скрасить ожидание Нового года, я создал этот адвент-календарь 🎄 Каждый день тебя ждёт новое окошко с новогодней загадкой, а подарки за них могут быть самыми разными. Отгадай загадку в свой день, иначе подарок будет потерян!</p>
+  <p class="about">Чтобы скрасить ожидание Нового года каждый день тебя ждёт новое окошко с новогодней загадкой, а подарки за них могут быть самыми разными. Отгадай загадку в свой день, иначе подарок будет потерян!</p>
   <div class="sub" id="sub"></div>
   <div class="prog"><i id="bar"></i></div>
   <div class="grid" id="grid"></div>
-  <div class="legend"><span>🎀 сегодня</span><span>✅ отгадано</span><span>🔒 рано</span><span>💔 потеряно</span></div>
+  <div class="legend"><span>🎀 Сегодня</span><span>✅ Отгадано</span><span>🔒 Рано</span><span>💔 Потеряно</span></div>
   <div style="text-align:center;font-size:11px;opacity:.5;margin-top:10px"></div>
 </main></div>
 <div class="modal" id="m"><div class="sheet" id="sheet"></div></div>
@@ -171,7 +171,7 @@ function show(n) {
   const solved = opened.includes(n);
   const riddle = `<h2>🧩 Окошко №${n}</h2><p>${esc(c.riddle || "⚠️ В content.json нет загадки. Залей новый content.json")}</p>`;
   $("sheet").innerHTML = riddle + (solved
-    ? `<div class="msg">✅ Загадка уже отгадана! Подарок за это окошко тебе полагается, забирай у меня 🎁</div><button onclick="closeM()">Закрыть</button>`
+    ? `<div class="msg">✅ Загадка уже отгадана!</div><button onclick="closeM()">Закрыть</button>`
     : `<input id="ans" placeholder="Твой ответ" autocomplete="off" enterkeyhint="done"><div class="msg" id="msg"></div><button id="go">Проверить</button>`);
   $("m").classList.add("on");
   if (!solved) {
