@@ -107,7 +107,7 @@ button{width:100%;border:0;border-radius:14px;padding:15px;font:600 16px system-
   <div class="prog"><i id="bar"></i></div>
   <div class="grid" id="grid"></div>
   <div class="legend"><span>🎀 сегодня</span><span>✅ отгадано</span><span>🔒 рано</span><span>💔 потеряно</span></div>
-  <div style="text-align:center;font-size:11px;opacity:.5;margin-top:10px">версия 4 · с загадками</div>
+  <div style="text-align:center;font-size:11px;opacity:.5;margin-top:10px"></div>
 </main></div>
 <div class="modal" id="m"><div class="sheet" id="sheet"></div></div>
 
@@ -185,7 +185,7 @@ function show(n) {
       }
       haptic("success"); burst(innerWidth / 2, innerHeight * .55);
       opened.push(n); store.set(opened); render(); $("grid").classList.add("done");
-      $("sheet").innerHTML = `<h2>🎉 Правильно!</h2><p>Ты отгадала загадку, Матурым, и за это тебе полагается подарок!\nПриходи ко мне за ним 🎁${c.win ? "\n\n" + esc(c.win) : ""}</p><button onclick="closeM()">Ура!</button>`;
+      $("sheet").innerHTML = `<h2>🎉 Правильно!</h2><p>Ты отгадала загадку и за это тебе полагается подарок!${c.win ? "\n\n" + esc(c.win) : ""}</p><button onclick="closeM()">Ура!</button>`;
     };
     $("go").onclick = go;
     $("ans").onkeydown = e => { if (e.key === "Enter") go(); };
